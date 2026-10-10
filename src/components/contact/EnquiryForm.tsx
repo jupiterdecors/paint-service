@@ -1,14 +1,19 @@
 import { useId, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { AlertCircle, CheckCircle2, Loader2, Mail, Send } from 'lucide-react';
+import { AlertCircle, CheckCircle2, HelpCircle, Loader2, Mail, Send } from 'lucide-react';
 import { services } from '../../data/services';
 import { business, isEmailConfigured, isFormspreeConfigured, isWhatsAppConfigured } from '../../config/business';
 import { buildEnquiryMessage, buildMailtoUrl, buildWhatsAppUrl, type EnquiryDetails } from '../../lib/whatsapp';
 import { submitToFormspree, validateEnquiry, type EnquiryErrors } from '../../lib/enquiry';
 import { Button } from '../ui/Button';
 import { WhatsAppIcon } from './WhatsAppIcon';
+import { ServiceSelect, type SelectOption } from './ServiceSelect';
 
 const NOT_SURE = 'Not sure yet — I need advice';
 const fieldOrder: (keyof EnquiryDetails)[] = ['name', 'phone', 'service', 'location', 'message'];
+const serviceOptions: SelectOption[] = [
+  ...services.map((s) => ({ value: s.name, label: s.name, icon: s.icon })),
+  { value: NOT_SURE, label: NOT_SURE, icon: HelpCircle },
+];
 
 interface Props {
   /** Service slug to preselect, e.g. from /contact?service=waterproofing */
@@ -42,8 +47,9 @@ export function EnquiryForm({ defaultService }: Props) {
         : null;
   const id = (f: string) => `${uid}-${f}`;
 
-  const onChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+  const onChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setField(e.target.name as keyof EnquiryDetails, e.target.value);
+
+  const setField = (name: keyof EnquiryDetails, value: string) => {
     const next = { ...values, [name]: value };
     setValues(next);
     setPreparedUrl(null);
@@ -139,15 +145,17 @@ export function EnquiryForm({ defaultService }: Props) {
         </div>
         <div>
           <Label f="service">Service needed</Label>
-          <select className={`${inputBase} ${borderFor('service')} min-h-12 appearance-none bg-[length:20px] bg-[right_0.9rem_center] bg-no-repeat pr-10`} style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")" }} {...field('service')}>
-            <option value="">Select a service</option>
-            {services.map((s) => (
-              <option key={s.slug} value={s.name}>
-                {s.name}
-              </option>
-            ))}
-            <option value={NOT_SURE}>{NOT_SURE}</option>
-          </select>
+          <ServiceSelect
+            id={id('service')}
+            name="service"
+            value={values.service}
+            options={serviceOptions}
+            placeholder="Select a service"
+            onChange={(v) => setField('service', v)}
+            invalid={!!errors.service}
+            describedBy={errors.service ? id('service-error') : undefined}
+            className={borderFor('service')}
+          />
           <ErrorText f="service" />
         </div>
         <div>

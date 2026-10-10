@@ -57,7 +57,7 @@ export function Hero() {
         <div className="relative lg:pl-4">
           <SmartImage
             src="/images/hero.jpg"
-            alt="Painter applying a fresh coat of paint to the wall of a bright Chennai home"
+            alt="Painter rolling a fresh coat of paint onto a wall in a bright room"
             aspect="aspect-[4/3] lg:aspect-[4/5]"
             className="rounded-[28px] shadow-[0_30px_60px_-30px_rgba(23,54,83,0.45)]"
             sizes="(min-width: 1024px) 45vw, 100vw"

@@ -4,25 +4,10 @@ import { testimonials } from '../../data/testimonials';
 
 /**
  * Shows real customer reviews from src/data/testimonials.ts.
- * With no reviews: hidden on the live site; a labelled placeholder appears only during development.
+ * Hidden entirely until at least one review is added.
  */
 export function Testimonials() {
-  if (testimonials.length === 0) {
-    if (!import.meta.env.DEV) return null;
-    return (
-      <section aria-label="Customer reviews placeholder" className="py-16">
-        <Container>
-          <div className="rounded-2xl border-2 border-dashed border-line p-8 text-center">
-            <p className="font-semibold text-navy">Customer reviews section (placeholder)</p>
-            <p className="mx-auto mt-2 max-w-lg text-sm text-muted">
-              Add real customer reviews in src/data/testimonials.ts and this section will appear. It is hidden on the
-              live website until then. This notice only shows while developing.
-            </p>
-          </div>
-        </Container>
-      </section>
-    );
-  }
+  if (testimonials.length === 0) return null;
 
   return (
     <section aria-labelledby="testimonials-title" className="bg-sand py-20 sm:py-24">

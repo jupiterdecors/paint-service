@@ -23,7 +23,7 @@ export function WhyChooseUs() {
           />
           <SmartImage
             src="/images/why-choose-us.jpg"
-            alt="Painter carefully cutting in paint along a window frame"
+            alt="Painter applying masking tape along the ceiling edge before painting"
             aspect="aspect-[4/3]"
             className="mt-10 rounded-2xl"
             sizes="(min-width: 1024px) 40vw, 100vw"

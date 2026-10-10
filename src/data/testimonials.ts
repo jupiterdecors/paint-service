@@ -3,7 +3,7 @@
  *
  * Only add REAL reviews from real customers, with their permission.
  * While this list is empty, the testimonials section is hidden on the
- * live site (a labelled placeholder appears only while developing).
+ * site.
  *
  * Example:
  * {

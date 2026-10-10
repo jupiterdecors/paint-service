@@ -1,14 +1,7 @@
 import { useEffect } from 'react';
 import { business } from '../config/business';
-
-interface SeoOptions {
-  title: string;
-  description: string;
-  /** Route path, e.g. '/services'. */
-  path: string;
-  /** Image path inside /public, e.g. '/images/hero.jpg'. */
-  image?: string;
-}
+import { fullTitle, getPageSeo, type PageSeo } from '../data/seo';
+import { pageSchema } from './schema';
 
 function upsertMeta(attr: 'name' | 'property', key: string, content: string | null) {
   let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);
@@ -38,21 +31,44 @@ function upsertCanonical(href: string | null) {
   el.href = href;
 }
 
-/** Sets a unique title, description, canonical URL and Open Graph tags for a page. */
-export function useSeo({ title, description, path, image = '/images/hero.jpg' }: SeoOptions) {
-  useEffect(() => {
-    const fullTitle = path === '/' ? title : `${title} | ${business.name}`;
-    const site = business.siteUrl.replace(/\/+$/, '');
-    const url = site ? `${site}${path}` : null;
+function setPageSchema(path: string) {
+  document.head.querySelectorAll('script[data-schema="page"]').forEach((s) => s.remove());
+  for (const data of pageSchema(path)) {
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.dataset.schema = 'page';
+    script.text = JSON.stringify(data);
+    document.head.appendChild(script);
+  }
+}
 
-    document.title = fullTitle;
+/**
+ * Applies the title, description, canonical URL, Open Graph / Twitter tags and
+ * structured data for a route. Text comes from src/data/seo.ts; pass overrides
+ * only if a page needs something different.
+ */
+export function useSeo(path: string, overrides: Partial<PageSeo> = {}) {
+  const base = getPageSeo(path);
+  const page = { ...base, ...overrides, path };
+  const { title, description, image, noindex } = page;
+
+  useEffect(() => {
+    const t = fullTitle({ path, title });
+    const site = business.siteUrl.replace(/\/+$/, '');
+    const url = site && !noindex ? `${site}${path === '/' ? '/' : path}` : null;
+    const img = site ? `${site}${image}` : null;
+
+    document.title = t;
     upsertMeta('name', 'description', description);
-    upsertMeta('property', 'og:title', fullTitle);
+    upsertMeta('name', 'robots', noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large');
+    upsertMeta('property', 'og:title', t);
     upsertMeta('property', 'og:description', description);
     upsertMeta('property', 'og:url', url);
-    upsertMeta('property', 'og:image', site ? `${site}${image}` : null);
-    upsertMeta('name', 'twitter:title', fullTitle);
+    upsertMeta('property', 'og:image', img);
+    upsertMeta('name', 'twitter:title', t);
     upsertMeta('name', 'twitter:description', description);
+    upsertMeta('name', 'twitter:image', img);
     upsertCanonical(url);
-  }, [title, description, path, image]);
+    setPageSchema(path);
+  }, [path, title, description, image, noindex]);
 }

@@ -2,13 +2,24 @@ import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { business, getMissingConfig } from './src/config/business';
-import { services } from './src/data/services';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { pages, fullTitle } from './src/data/seo';
+import { businessSchema, pageSchema } from './src/lib/schema';
+import { stockFallback } from './src/data/images';
 
 /**
  * Build-time helper:
  *  - warns about business details that still need to be filled in
  *  - writes sitemap.xml and robots.txt into the build output
+ *  - writes a static HTML file per route with its own title, description,
+ *    canonical, Open Graph tags and structured data, so search engines and
+ *    WhatsApp/Facebook link previews see the right details without running JS
  */
+const esc = (v: string) => v.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const ld = (data: unknown, kind: string) =>
+  `<script type="application/ld+json" data-schema="${kind}">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;
+
 function jupiterSeoPlugin(): Plugin {
   return {
     name: 'jupiter-seo',
@@ -25,14 +36,7 @@ function jupiterSeoPlugin(): Plugin {
     },
     generateBundle() {
       const site = business.siteUrl.replace(/\/+$/, '');
-      const routes = [
-        '/',
-        '/services',
-        ...services.map((s) => `/services/${s.slug}`),
-        '/projects',
-        '/about',
-        '/contact',
-      ];
+      const routes = pages.filter((p) => !p.noindex).map((p) => p.path);
 
       if (site) {
         const today = new Date().toISOString().slice(0, 10);
@@ -48,6 +52,43 @@ function jupiterSeoPlugin(): Plugin {
 
       const robots = `User-agent: *\nAllow: /\n${site ? `\nSitemap: ${site}/sitemap.xml\n` : ''}`;
       this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robots });
+    },
+    closeBundle() {
+      const out = join(process.cwd(), 'dist');
+      const template = readFileSync(join(out, 'index.html'), 'utf8');
+      const site = business.siteUrl.replace(/\/+$/, '');
+
+      for (const page of pages) {
+        const title = fullTitle(page);
+        const url = site ? `${site}${page.path === '/' ? '/' : page.path}` : '';
+        // Use the self-hosted photo if it was downloaded (npm run images), else the stock URL.
+        const image = existsSync(join(out, page.image))
+          ? site && `${site}${page.image}`
+          : stockFallback(page.image) ?? (site && `${site}${page.image}`);
+
+        const tags = [
+          `<title>${esc(title)}</title>`,
+          `<meta name="description" content="${esc(page.description)}" />`,
+          `<meta name="robots" content="index, follow, max-image-preview:large" />`,
+          url && `<link rel="canonical" href="${url}" />`,
+          `<meta property="og:title" content="${esc(title)}" />`,
+          `<meta property="og:description" content="${esc(page.description)}" />`,
+          url && `<meta property="og:url" content="${url}" />`,
+          image && `<meta property="og:image" content="${esc(image)}" />`,
+          `<meta name="twitter:title" content="${esc(title)}" />`,
+          `<meta name="twitter:description" content="${esc(page.description)}" />`,
+          image && `<meta name="twitter:image" content="${esc(image)}" />`,
+          ld(businessSchema(), 'business'),
+          ...pageSchema(page.path).map((d) => ld(d, 'page')),
+        ]
+          .filter(Boolean)
+          .join('\n    ');
+
+        const html = template.replace(/<!--seo:start-->[\s\S]*?<!--seo:end-->/, tags);
+        const file = page.path === '/' ? join(out, 'index.html') : join(out, page.path, 'index.html');
+        mkdirSync(dirname(file), { recursive: true });
+        writeFileSync(file, html);
+      }
     },
   };
 }

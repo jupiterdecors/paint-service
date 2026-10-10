@@ -3,7 +3,7 @@ import { ButtonLink } from '../components/ui/Button';
 import { useSeo } from '../lib/seo';
 
 export default function NotFoundPage() {
-  useSeo({ title: 'Page not found', description: 'The page you were looking for could not be found.', path: '/404' });
+  useSeo('/404');
   return (
     <section className="py-24 sm:py-32">
       <Container className="max-w-2xl text-center">

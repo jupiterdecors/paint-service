@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Expand, Info } from 'lucide-react';
+import { Expand } from 'lucide-react';
 import { projectCategories, projects as allProjects, type ProjectCategory } from '../../data/projects';
 import { SmartImage } from '../ui/SmartImage';
 import { Lightbox } from '../projects/Lightbox';
@@ -21,7 +21,6 @@ export function ProjectGallery({ limit, showFilters = true }: Props) {
     return limit ? list.slice(0, limit) : list;
   }, [filter, limit]);
 
-  const hasPlaceholders = visible.some((p) => p.isPlaceholder);
   const close = useCallback(() => setOpenIndex(null), []);
   const filters: Filter[] = ['All', ...projectCategories];
 
@@ -45,13 +44,6 @@ export function ProjectGallery({ limit, showFilters = true }: Props) {
         </div>
       )}
 
-      {hasPlaceholders && (
-        <p className="mt-6 flex items-start gap-2 rounded-lg bg-navy-soft px-4 py-3 text-sm text-navy">
-          <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
-          These are sample placeholders. Photos of completed Jupiter Decors projects will be added here.
-        </p>
-      )}
-
       {visible.length === 0 ? (
         <p className="mt-10 text-muted">No projects in this category yet. Choose another category to see more work.</p>
       ) : (
@@ -62,7 +54,7 @@ export function ProjectGallery({ limit, showFilters = true }: Props) {
                 type="button"
                 onClick={() => setOpenIndex(i)}
                 className="group relative block h-full w-full overflow-hidden rounded-2xl text-left"
-                aria-label={`View larger: ${p.title} (${p.category})${p.isPlaceholder ? ', sample placeholder' : ''}`}
+                aria-label={`View larger: ${p.title} (${p.category})`}
               >
                 <SmartImage
                   src={p.image}
@@ -70,7 +62,6 @@ export function ProjectGallery({ limit, showFilters = true }: Props) {
                   aspect="h-full"
                   className="h-full"
                   imgClassName="transition-transform duration-500 group-hover:scale-[1.03]"
-                  sampleLabel={p.isPlaceholder}
                   hidePlaceholderChip
                 />
                 <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between bg-gradient-to-t from-navy-deep/80 to-transparent p-4 pt-12 text-white">

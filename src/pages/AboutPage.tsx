@@ -9,13 +9,7 @@ import { services } from '../data/services';
 import { useSeo } from '../lib/seo';
 
 export default function AboutPage() {
-  useSeo({
-    title: 'About Jupiter Decors',
-    description:
-      'Jupiter Decors is a Chennai-based painting service focused on careful preparation, clear communication and quality finishes for homes and workspaces.',
-    path: '/about',
-    image: '/images/about.jpg',
-  });
+  useSeo('/about');
 
   return (
     <>
@@ -47,7 +41,7 @@ export default function AboutPage() {
           </div>
           <SmartImage
             src="/images/about.jpg"
-            alt="The Jupiter Decors team at work painting a home"
+            alt="Two painters in protective gear painting interior walls"
             aspect="aspect-[4/3]"
             className="rounded-2xl"
             sizes="(min-width: 1024px) 50vw, 100vw"

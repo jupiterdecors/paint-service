@@ -8,12 +8,7 @@ import { useSeo } from '../lib/seo';
 
 export default function ContactPage() {
   const [params] = useSearchParams();
-  useSeo({
-    title: 'Contact & Request a Quotation',
-    description:
-      'Request a painting quotation from Jupiter Decors in Chennai. Send your project details on WhatsApp or call us.',
-    path: '/contact',
-  });
+  useSeo('/contact');
 
   return (
     <>

@@ -91,7 +91,6 @@ export function Lightbox({ items, index, onClose, onChange }: Props) {
             aspect="aspect-[4/3] mx-auto w-full max-w-[min(100%,calc(70vh*4/3))]"
             className="rounded-xl"
             sizes="90vw"
-            sampleLabel={item.isPlaceholder}
           />
           <figcaption className="mt-4 text-white">
             <h2 id="lightbox-title" className="text-lg font-semibold text-white">

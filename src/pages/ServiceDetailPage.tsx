@@ -13,11 +13,6 @@ export default function ServiceDetailPage() {
 
 function ServiceDetailContent({ slug }: { slug: string }) {
   const service = getServiceBySlug(slug)!;
-  useSeo({
-    title: `${service.name} in Chennai`,
-    description: service.seoDescription,
-    path: `/services/${service.slug}`,
-    image: service.image,
-  });
+  useSeo(`/services/${service.slug}`);
   return <ServiceDetail service={service} />;
 }

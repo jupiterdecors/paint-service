@@ -7,12 +7,7 @@ import { services } from '../data/services';
 import { useSeo } from '../lib/seo';
 
 export default function ServicesPage() {
-  useSeo({
-    title: 'Painting Services in Chennai',
-    description:
-      'Explore Jupiter Decors painting services in Chennai: interior, exterior, new house painting, repainting, waterproofing and texture painting.',
-    path: '/services',
-  });
+  useSeo('/services');
 
   return (
     <>

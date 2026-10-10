@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ImageOff } from 'lucide-react';
+import { stockFallback } from '../../data/images';
 
 interface Props {
   src: string;
@@ -44,20 +45,31 @@ export function SmartImage({
   hidePlaceholderChip = false,
 }: Props) {
   const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
+  // Local file first; if it is missing, try the stock photo; then the placeholder.
+  const [currentSrc, setCurrentSrc] = useState(src);
+  useEffect(() => {
+    setCurrentSrc(src);
+    setStatus('loading');
+  }, [src]);
+  const handleError = () => {
+    const remote = stockFallback(src);
+    if (remote && currentSrc !== remote) setCurrentSrc(remote);
+    else setStatus('error');
+  };
   const [a, b, c] = palettes[hash(src) % palettes.length];
 
   return (
     <div className={`relative overflow-hidden bg-sand ${aspect} ${className}`}>
       {status !== 'error' && (
         <img
-          src={src}
+          src={currentSrc}
           alt={alt}
           loading={priority ? 'eager' : 'lazy'}
           fetchPriority={priority ? 'high' : 'auto'}
           decoding="async"
           sizes={sizes}
           onLoad={() => setStatus('loaded')}
-          onError={() => setStatus('error')}
+          onError={handleError}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
             status === 'loaded' ? 'opacity-100' : 'opacity-0'
           } ${imgClassName}`}

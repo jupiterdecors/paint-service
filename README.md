@@ -101,3 +101,26 @@ Keyboard-accessible navigation, skip link, visible focus rings, labelled form fi
 announced errors, an image lightbox with Esc / arrow-key support and focus trapping, and
 reduced-motion support. Button colours use a darker terracotta (`#B0552A`) so white text meets
 WCAG AA contrast; the original `#D97745` is used for accents and icons.
+
+## Images
+
+Every image slot already has a matching stock photo (free Pexels licence), listed in
+`src/data/images.ts`. Until a file exists in `public/images`, the site loads the stock
+photo from Pexels. Run `npm run images` once to download them all into `public/images`
+so the site hosts them itself. To use your own photo, save it in `public/images` under
+the same file name — your file always wins. Project gallery photos keep their "Sample"
+label until you replace them with real work and set `isPlaceholder: false`.
+
+## SEO
+
+- Page titles and descriptions for every route live in `src/data/seo.ts`. The homepage
+  tab title is just "Jupiter Decors"; inner pages are "Page | Jupiter Decors".
+- `npm run build` writes a static HTML file per route with its own title, description,
+  canonical URL, Open Graph/Twitter tags and schema.org data (HousePainter business,
+  FAQ on the homepage, Service + breadcrumbs on service pages), plus `sitemap.xml`
+  and `robots.txt`.
+- **Set `siteUrl` in `src/config/business.ts` before going live.** Canonical URLs,
+  the sitemap and share-preview images need it. Filling in phone, address and
+  service areas there also strengthens the local business data.
+- After launch, add the site to Google Search Console, submit `/sitemap.xml`, and
+  create a Google Business Profile using the same name, phone and address.

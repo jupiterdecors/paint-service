@@ -5,12 +5,7 @@ import { ButtonLink } from '../components/ui/Button';
 import { useSeo } from '../lib/seo';
 
 export default function ProjectsPage() {
-  useSeo({
-    title: 'Our Work — Painting Projects',
-    description:
-      'Browse Jupiter Decors painting projects in Chennai: interior painting, exterior painting, repainting, texture finishes and waterproofing.',
-    path: '/projects',
-  });
+  useSeo('/projects');
 
   return (
     <>

@@ -1,17 +1,15 @@
-Put your photos in this folder using these exact file names (JPG, ideally 1600px wide, under 300 KB each).
-Any photo that is missing shows a labelled placeholder on the website instead.
+Stock photos are already wired in for every image on the site (see src/data/images.ts).
+Until files exist in this folder, the site loads them from Pexels automatically.
 
-hero.jpg                     Homepage top banner (portrait or 4:3)
-why-choose-us.jpg            "Quality in Every Coat" section
-about.jpg                    About page
+To store them here instead (recommended before going live):
+    npm run images
 
-services/interior-painting.jpg        services/interior-painting-detail.jpg
-services/exterior-painting.jpg        services/exterior-painting-detail.jpg
-services/new-house-painting.jpg       services/new-house-painting-detail.jpg
-services/repainting.jpg               services/repainting-detail.jpg
-services/waterproofing.jpg            services/waterproofing-detail.jpg
-services/texture-painting.jpg         services/texture-painting-detail.jpg
+To use your own photo, put it in this folder with the same file name. Your file
+always takes priority, and `npm run images` never overwrites existing files.
 
-projects/  -> one photo per project listed in src/data/projects.ts
+hero.jpg, why-choose-us.jpg, about.jpg
+services/<service>.jpg and services/<service>-detail.jpg
+projects/<project-id>.jpg  (ids are in src/data/projects.ts)
 
-Only use photos you own or have a licence to use.
+Project gallery photos are stock samples and keep their "Sample" label until you
+replace them with real Jupiter Decors work and set isPlaceholder: false.

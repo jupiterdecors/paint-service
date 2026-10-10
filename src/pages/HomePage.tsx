@@ -13,12 +13,7 @@ import { ButtonLink } from '../components/ui/Button';
 import { useSeo } from '../lib/seo';
 
 export default function HomePage() {
-  useSeo({
-    title: 'Jupiter Decors | Painting Services in Chennai',
-    description:
-      'Interior, exterior, new house painting, repainting, waterproofing and texture painting in Chennai. Request a painting quotation from Jupiter Decors.',
-    path: '/',
-  });
+  useSeo('/');
 
   return (
     <>

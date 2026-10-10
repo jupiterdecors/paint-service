@@ -1,10 +1,11 @@
 /**
  * Page titles and descriptions for every route, in one place.
  *
- * Browser tab titles: the homepage shows just the company name, and inner pages
- * show "Page | Jupiter Decors". The location keywords (Chennai, services) live
- * in the descriptions, headings and structured data, which is where search
- * engines use them for local results.
+ * Titles carry the main search keywords ("painting services / painters in
+ * Chennai", each service name + Chennai) since Google weighs the title most.
+ * Homepage: "Jupiter Decors | Painting Services & Painters in Chennai";
+ * inner pages: "Page title | Jupiter Decors". Keep titles under ~60 characters
+ * and descriptions under ~160 so Google shows them in full.
  *
  * This file is read by the app at runtime AND at build time, so every page is
  * also written out as static HTML with the right tags for Google, WhatsApp and
@@ -15,7 +16,7 @@ import { services } from './services';
 
 export interface PageSeo {
   path: string;
-  /** Short page name; the homepage uses the company name on its own. */
+  /** Page title (before " | Jupiter Decors"); the homepage uses HOME_TITLE instead. */
   title: string;
   description: string;
   image: string;
@@ -23,49 +24,51 @@ export interface PageSeo {
   noindex?: boolean;
 }
 
+const HOME_TITLE = `${business.name} | Painting Services & Painters in ${business.city}`;
+
 export const fullTitle = (page: Pick<PageSeo, 'path' | 'title'>) =>
-  page.path === '/' ? business.name : `${page.title} | ${business.name}`;
+  page.path === '/' ? HOME_TITLE : `${page.title} | ${business.name}`;
 
 export const pages: PageSeo[] = [
   {
     path: '/',
     title: business.name,
     description:
-      'Jupiter Decors offers interior, exterior, new house painting, repainting, waterproofing and texture painting in Chennai. Request a free painting quotation.',
+      'Painters in Chennai for interior & exterior painting, new house painting, repainting, waterproofing and texture finishes. Get a free quote from Jupiter Decors.',
     image: '/images/hero.jpg',
   },
   {
     path: '/services',
-    title: 'Services',
+    title: 'Painting Services in Chennai',
     description:
       'Explore Jupiter Decors painting services in Chennai: interior, exterior, new house painting, repainting, waterproofing and texture painting.',
     image: '/images/services/interior-painting.jpg',
   },
   ...services.map((s) => ({
     path: `/services/${s.slug}`,
-    title: s.name,
+    title: `${s.name} in Chennai`,
     description: s.seoDescription,
     image: s.image,
   })),
   {
     path: '/projects',
-    title: 'Our Work',
+    title: 'Painting Projects in Chennai',
     description:
       'Browse Jupiter Decors painting projects in Chennai: interior painting, exterior painting, repainting, texture finishes and waterproofing.',
     image: '/images/projects/interior-living-room.jpg',
   },
   {
     path: '/about',
-    title: 'About',
+    title: 'About Our Chennai Painting Company',
     description:
       'Jupiter Decors is a Chennai-based painting service focused on careful preparation, clear communication and quality finishes for homes and workspaces.',
     image: '/images/about.jpg',
   },
   {
     path: '/contact',
-    title: 'Contact',
+    title: 'Contact & Free Painting Quote in Chennai',
     description:
-      'Request a painting quotation from Jupiter Decors in Chennai. Send your project details on WhatsApp or call us.',
+      'Request a free painting quotation from Jupiter Decors in Chennai. Share your project details online and we will call you back.',
     image: '/images/hero.jpg',
   },
 ];

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ImageOff } from 'lucide-react';
 import { stockFallback } from '../../data/images';
 
@@ -47,10 +47,19 @@ export function SmartImage({
   const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
   // Local file first; if it is missing, try the stock photo; then the placeholder.
   const [currentSrc, setCurrentSrc] = useState(src);
+  const imgRef = useRef<HTMLImageElement>(null);
   useEffect(() => {
     setCurrentSrc(src);
     setStatus('loading');
   }, [src]);
+  // With pre-rendered HTML the browser may finish loading (or fail) before React attaches
+  // onLoad/onError, so check the image's state once React takes over.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (!img?.complete) return;
+    if (img.naturalWidth > 0) setStatus('loaded');
+    else handleError();
+  }, [currentSrc]); // eslint-disable-line react-hooks/exhaustive-deps
   const handleError = () => {
     const remote = stockFallback(src);
     if (remote && currentSrc !== remote) setCurrentSrc(remote);
@@ -62,10 +71,12 @@ export function SmartImage({
     <div className={`relative overflow-hidden bg-sand ${aspect} ${className}`}>
       {status !== 'error' && (
         <img
+          ref={imgRef}
           src={currentSrc}
           alt={alt}
           loading={priority ? 'eager' : 'lazy'}
-          fetchPriority={priority ? 'high' : 'auto'}
+          // React 18 only knows the lowercase attribute name.
+          {...({ fetchpriority: priority ? 'high' : 'auto' } as Record<string, string>)}
           decoding="async"
           sizes={sizes}
           onLoad={() => setStatus('loaded')}

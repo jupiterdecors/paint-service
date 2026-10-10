@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { business, getMissingConfig } from './src/config/business';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { pages, fullTitle } from './src/data/seo';
+import { pages, fullTitle, notFoundSeo } from './src/data/seo';
 import { businessSchema, pageSchema } from './src/lib/schema';
 import { stockFallback } from './src/data/images';
 
@@ -15,16 +15,24 @@ import { stockFallback } from './src/data/images';
  *  - writes a static HTML file per route with its own title, description,
  *    canonical, Open Graph tags and structured data, so search engines and
  *    WhatsApp/Facebook link previews see the right details without running JS
+ *  - writes 404.html (noindex) for unknown URLs
+ * The page body is filled in afterwards by scripts/prerender.mjs.
+ * Skipped during the SSR build (vite build --ssr), which only produces the renderer.
  */
 const esc = (v: string) => v.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const ld = (data: unknown, kind: string) =>
   `<script type="application/ld+json" data-schema="${kind}">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;
 
 function jupiterSeoPlugin(): Plugin {
+  let ssr = false;
   return {
     name: 'jupiter-seo',
     apply: 'build',
+    configResolved(config) {
+      ssr = !!config.build.ssr;
+    },
     buildStart() {
+      if (ssr) return;
       const missing = getMissingConfig();
       if (missing.length) {
         this.warn(
@@ -35,6 +43,7 @@ function jupiterSeoPlugin(): Plugin {
       }
     },
     generateBundle() {
+      if (ssr) return;
       const site = business.siteUrl.replace(/\/+$/, '');
       const routes = pages.filter((p) => !p.noindex).map((p) => p.path);
 
@@ -54,6 +63,7 @@ function jupiterSeoPlugin(): Plugin {
       this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robots });
     },
     closeBundle() {
+      if (ssr) return;
       const out = join(process.cwd(), 'dist');
       const template = readFileSync(join(out, 'index.html'), 'utf8');
       const site = business.siteUrl.replace(/\/+$/, '');
@@ -89,10 +99,20 @@ function jupiterSeoPlugin(): Plugin {
         mkdirSync(dirname(file), { recursive: true });
         writeFileSync(file, html);
       }
+
+      const notFound = [
+        `<title>${esc(fullTitle(notFoundSeo))}</title>`,
+        `<meta name="description" content="${esc(notFoundSeo.description)}" />`,
+        `<meta name="robots" content="noindex, follow" />`,
+        ld(businessSchema(), 'business'),
+      ].join('\n    ');
+      writeFileSync(join(out, '404.html'), template.replace(/<!--seo:start-->[\s\S]*?<!--seo:end-->/, notFound));
     },
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
   plugins: [react(), tailwindcss(), jupiterSeoPlugin()],
-});
+  // The SSR build only produces the page renderer for prerendering; it doesn't need public/ (photos etc.).
+  build: { copyPublicDir: !isSsrBuild },
+}));

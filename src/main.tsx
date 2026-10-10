@@ -1,11 +1,16 @@
 import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, hydrateRoot } from 'react-dom/client';
 import '@fontsource-variable/inter';
 import './index.css';
 import App from './App';
 
-createRoot(document.getElementById('root')!).render(
+const root = document.getElementById('root')!;
+const app = (
   <StrictMode>
     <App />
-  </StrictMode>,
+  </StrictMode>
 );
+
+// Production pages are pre-rendered at build time, so attach to the existing HTML; dev renders from scratch.
+if (root.hasChildNodes()) hydrateRoot(root, app);
+else createRoot(root).render(app);

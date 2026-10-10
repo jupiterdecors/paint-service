@@ -34,7 +34,7 @@ export function businessSchema(): Json {
   if (site()) {
     data.url = `${site()}/`;
     data.image = abs('/images/hero.jpg');
-    data.logo = abs('/favicon.svg');
+    data.logo = abs('/icon-512.png');
   }
   if (isPhoneConfigured()) data.telephone = business.phone;
   if (isEmailConfigured()) data.email = business.email;
@@ -60,8 +60,11 @@ export function pageSchema(path: string): Json[] {
     out.push({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
+      '@id': abs('/#website'),
       name: business.name,
+      alternateName: [`${business.name} ${business.city}`, 'jupiterdecors.in'],
       ...(site() && { url: `${site()}/` }),
+      publisher: { '@id': abs('/#business') },
     });
     out.push({
       '@context': 'https://schema.org',

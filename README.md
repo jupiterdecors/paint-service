@@ -113,8 +113,16 @@ label until you replace them with real work and set `isPlaceholder: false`.
 
 ## SEO
 
-- Page titles and descriptions for every route live in `src/data/seo.ts`. The homepage
-  tab title is just "Jupiter Decors"; inner pages are "Page | Jupiter Decors".
+- Page titles and descriptions for every route live in `src/data/seo.ts`. Titles carry the
+  search keywords: the homepage is "Jupiter Decors | Painting Services & Painters in Chennai",
+  inner pages are e.g. "Interior Painting in Chennai | Jupiter Decors".
+- **Pre-rendering:** `npm run build` renders every page's full content into its HTML
+  (`src/entry-server.tsx` + `scripts/prerender.mjs`), so Google reads the text without running
+  JavaScript; the browser then takes over (hydrates). Unknown URLs get `404.html` with a real
+  404 status (`public/_redirects`).
+- **Logo in search results:** Google uses the favicon — `favicon.ico`, `favicon.svg`,
+  `icon-192.png`, `icon-512.png` and `apple-touch-icon.png` in `public/`. The business
+  structured data points `logo` at `icon-512.png`.
 - `npm run build` writes a static HTML file per route with its own title, description,
   canonical URL, Open Graph/Twitter tags and schema.org data (HousePainter business,
   FAQ on the homepage, Service + breadcrumbs on service pages), plus `sitemap.xml`

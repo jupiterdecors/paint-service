@@ -76,7 +76,7 @@ export const business: BusinessConfig = {
     facebook: '',
     youtube: '',
   },
-  siteUrl: '',
+  siteUrl: 'https://jupiterdecors.in',
   formspreeFormId: 'xdeazdrp',
 };
 
